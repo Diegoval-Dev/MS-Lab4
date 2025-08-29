@@ -37,21 +37,23 @@ def build_distance_matrix_from_coords(coords: np.ndarray) -> np.ndarray:
     return M
 
 def load_tsplib_to_matrix(path: str) -> np.ndarray:
-    import tsplib95 
+    import tsplib95
     problem = tsplib95.load(path)
-    n = problem.dimension
-    if getattr(problem, "node_coords", None):
-        coords = np.array([problem.node_coords[i] for i in problem.get_nodes()], dtype=float)
-        return build_distance_matrix_from_coords(coords)
-    M = np.zeros((n, n), dtype=float)
+
     nodes = list(problem.get_nodes())
-    idx = {node: k for k, node in enumerate(nodes)}
+    n = len(nodes)
+    idx = {node: i for i, node in enumerate(nodes)}
+
+    M = np.zeros((n, n), dtype=float)
     for i in nodes:
         for j in nodes:
             if i == j:
                 continue
+            
             M[idx[i], idx[j]] = problem.get_weight(i, j)
+
     np.fill_diagonal(M, 0.0)
+   
     if not np.allclose(M, M.T, atol=1e-9):
         M = 0.5 * (M + M.T)
     return M

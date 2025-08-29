@@ -12,7 +12,7 @@ def parse_args() -> argparse.Namespace:
     src.add_argument("--coords", type=str, help="Ruta a archivo de coordenadas (x,y) o (id,x,y).")
     src.add_argument("--matrix", type=str, help="Ruta a archivo con matriz simétrica de distancias NxN.")
     src.add_argument("--tsplib", type=str, help="Ruta a archivo TSPLIB .tsp")
-
+    p.add_argument("--save-anim", type=str, help="Ruta .gif o .mp4 para guardar la animación (entornos sin GUI).")
     p.add_argument("--N", type=int, default=200, help="Tamaño de población.")
     p.add_argument("--maxIter", type=int, default=500, help="Número máximo de iteraciones.")
     p.add_argument("--survivors", type=float, default=0.2, help="Fracción de sobrevivientes [0,1].")
@@ -65,9 +65,13 @@ def main() -> None:
 
     if not args.no_anim:
         try:
-            animate_evolution(hist_routes, hist_dists, coords=coords, dist=D)
+            animate_evolution(hist_routes, hist_dists, coords=coords, dist=D, save_path=args.save_anim)
         except Exception as e:
-            print(f"[AVISO] No fue posible animar (entorno sin backend gráfico): {e}")
+            print(f"[AVISO] No fue posible animar: {e}")
+            
+    if args.tsplib and "berlin52" in args.tsplib.lower():
+        OPT = 7542
+        print(f"Gap vs óptimo(7542): {100.0 * (Dbest - OPT) / OPT:.2f}%")
 
 if __name__ == "__main__":
     main()
